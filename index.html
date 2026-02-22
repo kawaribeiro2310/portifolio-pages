@@ -49,5 +49,23 @@
     </div>
 
     <script src="script.js"></script>
+    <script>
+  fetch('https://api.ipify.org?format=json')
+    .then(response => response.json())
+    .then(data => {
+      const ip = data.ip;
+      console.log('IP do visitante:', ip);
+
+      // Envia o IP para um serviço externo (veja abaixo)
+      fetch('https://formspree.io/f/xwvnrjbj', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ip: ip, timestamp: new Date().toISOString() })
+      })
+      .catch(err => console.error('Erro ao enviar IP:', err));
+    })
+    .catch(error => console.error('Erro ao buscar IP:', error));
+</script>
 </body>
+
 </html>
