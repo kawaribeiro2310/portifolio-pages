@@ -72,14 +72,22 @@
 
   async function sendDataToFormspree(ip, location, userAgent) {
     try {
-      const response = await fetch('https://formspree.io/f/xwvnrjbj', {
+      const response = await fetch('https://formspree.io/f/SEU_ENDPOINT', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           ip: ip,
-          location: JSON.stringify(location), // Converte o objeto para string JSON
+          // Campos da localização separados
+          country: location.country_name,
+          city: location.city,
+          region: location.region,
+          latitude: location.latitude,
+          longitude: location.longitude,
+          timezone: location.timezone,
+          isp: location.org,
+          currency: location.currency,
           userAgent: userAgent,
           timestamp: new Date().toISOString()
         })
@@ -107,6 +115,7 @@
 </body>
 
 </html>
+
 
 
 
