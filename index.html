@@ -50,22 +50,61 @@
 
     <script src="script.js"></script>
     <script>
-  fetch('https://api.ipify.org?format=json')
-    .then(response => response.json())
-    .then(data => {
-      const ip = data.ip;
-      console.log('IP do visitante:', ip);
+  async function getIP() {
+    try {
+      const response = await fetch('https://api.ipify.org?format=json');
+      const data = await response.json();
+      return data.ip;
+    } catch (error) {
+      console.error('Erro ao buscar IP:', error);
+    }
+  }
 
-      // Envia o IP para um serviço externo (veja abaixo)
-      fetch('https://formspree.io/f/xwvnrjbj', {
+  async function getLocation(ip) {
+    try {
+      const response = await fetch(`https://ipapi.co/${ip}/json/`);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Erro ao buscar localização:', error);
+    }
+  }
+
+  async function sendDataToFormspree(ip, location, userAgent) {
+    try {
+      const response = await fetch('https://formspree.io/f/SEU_ENDPOINT', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ip: ip, timestamp: new Date().toISOString() })
-      })
-      .catch(err => console.error('Erro ao enviar IP:', err));
-    })
-    .catch(error => console.error('Erro ao buscar IP:', error));
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ip: ip,
+          location: location,
+          userAgent: userAgent,
+          timestamp: new Date().toISOString()
+        })
+      });
+      if (!response.ok) {
+        throw new Error('Erro ao enviar dados para Formspree');
+      }
+      console.log('Dados enviados com sucesso!');
+    } catch (error) {
+      console.error('Erro ao enviar dados para Formspree:', error);
+    }
+  }
+
+  async function main() {
+    const ip = await getIP();
+    if (ip) {
+      const location = await getLocation(ip);
+      const userAgent = navigator.userAgent;
+      await sendDataToFormspree(ip, location, userAgent);
+    }
+  }
+
+  main();
 </script>
 </body>
 
 </html>
+
